@@ -1,0 +1,17 @@
+{
+    "name": "ai.helper.monorepo",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "packageManager": "pnpm@8.1.0",
+    "scripts": {
+        "dev": "turbo run dev",
+        "build": "turbo run build"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "turbo": "^2.5.5"
+    }
+}
