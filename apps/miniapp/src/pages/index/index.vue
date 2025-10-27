@@ -4,7 +4,8 @@
             <div class="messages-container">
                 <div class="message-item" v-for="(msg, index) in messages" :key="index">
                     <div class="ai-message" v-if="msg.role === 'assistant'">
-                        <span class="ai-message-content">{{ msg.content || 'loading...' }}</span>
+                        <!-- <span class="ai-message-content">{{ msg.content || 'loading...' }}</span> -->
+                        <AiMessageContent :content="msg.content || 'loading...'" />
                     </div>
                     <div class="user-message" v-else>
                         <div class="user-message-content">{{ msg.content }}</div>
@@ -25,6 +26,7 @@
 import { onMounted, ref } from 'vue';
 import { ws, type IMessage } from '@/utils/websocket';
 import PageWrapper from '@/components/PageWrapper.vue';
+import AiMessageContent from '@/components/AiMessageContent.vue';
 
 const messages = ref<IMessage[]>([]);
 const loading = ref(false);
