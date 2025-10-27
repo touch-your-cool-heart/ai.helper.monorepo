@@ -35,6 +35,7 @@ function parseMarkdownToNodes(md: string) {
   let i = 0;
   let inCode = false;
   let codeBuf: string[] = [];
+  let codeBlockOpenLine = -1;
   let listBuf: string[] = [];
   let listType: 'ul' | 'ol' | null = null;
 
@@ -44,13 +45,31 @@ function parseMarkdownToNodes(md: string) {
     const line = lines[i];
 
     if (line.startsWith('```')) {
-      if (!inCode) { inCode = true; codeBuf = []; i++; continue; }
+      if (!inCode) {
+        inCode = true;
+        codeBuf = [];
+        codeBlockOpenLine = i;
+        i++;
+        continue;
+      }
       // 结束 code block
       inCode = false;
       result.push({ name: 'pre', attrs: { style: BLOCK_STYLE }, children: [{ name: 'code', attrs: { style: BLOCK_STYLE }, children: [{ type: 'text', text: codeBuf.join('\n') }] }] });
-      i++; continue;
+      codeBlockOpenLine = -1;
+      i++;
+      continue;
     }
-    if (inCode) { codeBuf.push(line); i++; continue; }
+    if (inCode) {
+      codeBuf.push(line);
+      i++;
+      // 如果到最后一行还没遇到结束符，则把当前 codeBuf 作为未闭合代码块渲染（流式场景）
+      if (i === lines.length) {
+        result.push({ name: 'pre', attrs: { style: BLOCK_STYLE }, children: [{ name: 'code', attrs: { style: BLOCK_STYLE }, children: [{ type: 'text', text: codeBuf.join('\n') }] }] });
+        inCode = false;
+        codeBlockOpenLine = -1;
+      }
+      continue;
+    }
 
     const ulMatch = line.match(/^\s*[-*]\s+(.*)/);
     const olMatch = line.match(/^\s*\d+\.\s+(.*)/);
@@ -125,7 +144,7 @@ function escapeHtml(s: string) { return s.replace(/&/g, '&amp;').replace(/</g, '
 <style scoped>
 .ai-message-content {
   display: inline-block;
-  max-width: 80%;
+  max-width: 100%;
   padding: 16rpx 20rpx;
   background: #eff6ff;
   color: #262626;
